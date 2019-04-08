@@ -1,6 +1,6 @@
 # SpartanStudy
 This is assignment repository of Spartan study.
-PDF and Markdown documents are in SpartanStudy/pwnable/week/
+PDF and Markdown documents are in [SpartanStudy/pwnable/](/pwnable/)
 
 ## First Week
 1. Overthewire Bandit All Clear
