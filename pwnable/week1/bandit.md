@@ -1,5 +1,5 @@
 # Bandit
-This document has passwords for bandit. Don't see if you didn't clear yet.
+This document has passwords for [Bandit](https://overthewire.org/wargames/bandit/). Don't see if you didn't clear yet.
 
 ## Passwords
 
