@@ -17,4 +17,4 @@ Assignment files are in [here](/pwnable/week1/)
 3. Wargame VMware 이미지 : *
 4. lv0 암호는 lv0
 
-Write-Ups are in [here](/pwnable/week2)
+Write-Ups are in [here](/pwnable/week2/Write-Up/)
