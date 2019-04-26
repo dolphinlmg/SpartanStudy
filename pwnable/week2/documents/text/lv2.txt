@@ -1,8 +1,8 @@
-   0x080483f8 <+0>:	push   ebp		
+ï»¿   0x080483f8 <+0>:	push   ebp		
    0x080483f9 <+1>:	mov    ebp,esp
    0x080483fb <+3>:	sub    esp,0x10			; buf : 0x10bytes
-   0x080483fe <+6>:	lea    eax,[ebp-0x10]		; eax¿¡ bufÁÖ¼Ò º¹»ç
-   0x08048401 <+9>:	push   eax			; eax°ªÀ» ½ºÅÃ¿¡ push
+   0x080483fe <+6>:	lea    eax,[ebp-0x10]		; eaxì— bufì£¼ì†Œ ë³µì‚¬
+   0x08048401 <+9>:	push   eax			; eaxê°’ì„ ìŠ¤íƒì— push
    0x08048402 <+10>:	call   0x804830c <gets@plt>	; gets(buf);
    0x08048407 <+15>:	add    esp,0x4
    0x0804840a <+18>:	lea    eax,[ebp-0x10]

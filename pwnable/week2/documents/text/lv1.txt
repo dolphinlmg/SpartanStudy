@@ -1,16 +1,16 @@
-   0x08048430 <+0>:	push   ebp
+ï»¿   0x08048430 <+0>:	push   ebp
    0x08048431 <+1>:	mov    ebp,esp
    0x08048433 <+3>:	sub    esp,0x10				; buf : 0x10 bytes
    0x08048436 <+6>:	cmp    DWORD PTR [ebp+0x8],0x1		; [ebp + 8] : argc 
-   0x0804843a <+10>:	jg     0x8048453 <main+35>			; 1º¸´Ù Å©¸é main+35·Î jmp
+   0x0804843a <+10>:	jg     0x8048453 <main+35>			; 1ë³´ë‹¤ í¬ë©´ main+35ë¡œ jmp
 
 
-   0x08048453 <+35>:	mov    eax,DWORD PTR [ebp+0xc]		; eax¿¡ argv[0] ÁÖ¼Ò mov
-   0x08048456 <+38>:	add    eax,0x4				; eax¿¡ argv[1] ÁÖ¼Ò mov
-   0x08048459 <+41>:	mov    edx,DWORD PTR [eax]		; edx¿¡ eax°ª mov
-   0x0804845b <+43>:	push   edx				; edx°ªÀ» ½ºÅÃ¿¡ push
-   0x0804845c <+44>:	lea    eax,[ebp-0x10]			; eax¿¡ º¯¼ö ÁÖ¼Ò º¹»ç
-   0x0804845f <+47>:	push   eax				; eax°ªÀ» ½ºÅÃ¿¡ push
+   0x08048453 <+35>:	mov    eax,DWORD PTR [ebp+0xc]		; eaxì— argv[0] ì£¼ì†Œ mov
+   0x08048456 <+38>:	add    eax,0x4				; eaxì— argv[1] ì£¼ì†Œ mov
+   0x08048459 <+41>:	mov    edx,DWORD PTR [eax]		; edxì— eaxê°’ mov
+   0x0804845b <+43>:	push   edx				; edxê°’ì„ ìŠ¤íƒì— push
+   0x0804845c <+44>:	lea    eax,[ebp-0x10]			; eaxì— ë³€ìˆ˜ ì£¼ì†Œ ë³µì‚¬
+   0x0804845f <+47>:	push   eax				; eaxê°’ì„ ìŠ¤íƒì— push
    0x08048460 <+48>:	call   0x8048370 <strcpy@plt>		; strcpy(str, argv[1]);
 
 
