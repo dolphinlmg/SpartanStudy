@@ -1,4 +1,4 @@
-# SpartanStudy
+﻿# SpartanStudy
 This is assignment repository of Spartan study.
 PDF and Markdown documents are in [SpartanStudy/pwnable/](/pwnable/)
 
@@ -10,3 +10,9 @@ PDF and Markdown documents are in [SpartanStudy/pwnable/](/pwnable/)
 3. 달고나 문서 27페이지까지 요약
 
 Assignment files are in [here](/pwnable/week1/)
+
+## Second Week
+1. WARGAME lv5 까지 모두 풀기.
+2. 푼 문제는 꼭 Write-Up 작성.
+3. Wargame VMware 이미지 : *
+4. lv0 암호는 lv0

