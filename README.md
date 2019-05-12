@@ -20,7 +20,7 @@ Assignment files are in [here](/pwnable/week1/)
 Write-Ups are in [here](/pwnable/week2/Write-Up/)
 
 ## Third Week
-1. Wargame 다 풀고 롸업 작성.
+1. ~~Wargame 다 풀고 롸업 작성.~~ Wargame lv12 까지 풀고 롸업 작성으로 변경.
 2. Lazenca ROP 읽고 정리해오기.
 
 <details>
