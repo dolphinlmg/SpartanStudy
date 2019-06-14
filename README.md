@@ -72,3 +72,16 @@ Write-Ups are in [here](/pwnable/week2/Write-Up/)
 </details>
 
 Write-Ups are in [here](/pwnable/week3/Write-Up/)
+
+## Fourth Week
+
+1. Lazenca Exploit Tech
+ShellCode ~ Onegadget 까지 요약.(이미했던건 건너뛰어도됨)
+
+2. pwnable.kr Toddler's Bottle 다 풀어오기
+
+
+참고
+
+- Wargame은 패치 및 검증이 완료될때까지 스톱입니다. (이번주 내로 패치 예정)
+- 폰케알은 Wargame과 풀이 방식이 다르기 때문에 fd나 collision 풀이를 보고 풀이법 숙지 후 푸시기 바랍니다. (어차피 두 문제 다 쉬움)
